@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lensen.backend.dal.dao.auth.ManagerAuthorityDao">
+    <resultMap id="BaseResultMap" type="com.lensen.backend.dal.domain.auth.ManagerAuthorityPO">
+        <id column="id" property="id"/>
+        <result column="manager_id" property="managerId"/>
+        <result column="authority_id" property="authorityId"/>
+    </resultMap>
+    <resultMap id="queryManagerPageResult" type="com.lensen.backend.dal.domain.auth.AdminAuthPagePO">
+        <id column="tma_manager_id"/>
+        <result column="tma_manager_id" property="maPO.managerId"/>
+        <result column="tma_authority_id" property="maPO.authorityId"/>
+        <result column="tap_authority_id" property="apPO.authorityId"/>
+        <result column="tap_page_id" property="apPO.pageId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        select id, manager_id, authority_id
+        from t_manager_authority
+    </sql>
+    <select id="queryAuthPages" parameterType="com.lensen.backend.dal.domain.manager.ManagerDto"
+            resultMap="queryManagerPageResult">
+        select tma.manager_id   as tma_manager_id,
+               tma.authority_id as tma_authority_id,
+               tap.authority_id as tap_authority_id,
+               tap.page_id      as tap_page_id
+        from t_manager_authority as tma
+                 inner join t_authority_page as tap on tma.authority_id = tap.authority_id
+        where tma.manager_id = #{id}
+          and tma.del_flag = 0
+          and tap.del_flag = 0
+    </select>
+</mapper>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lensen.backend.dal.dao.manager.ManagerDao">
+    <resultMap id="BaseResultMap" type="com.lensen.backend.dal.domain.manager.ManagerPO">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="login_time" property="loginTime"/>
+        <result column="del_flag" property="delFlag"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        select id,
+               username,
+               password,
+               status,
+               create_time,
+               create_id,
+               mod_time,
+               login_time,
+               del_flag,
+               name
+        from t_manager
+    </sql>
+    <update id="updateAdminLoginTime">
+        update t_manager
+        set login_time = sysdate()
+        where id = #{id}
+    </update>
+    <update id="updatePassword">
+        update t_manager
+        set password = #{password}
+        where id = #{id}
+    </update>
+    <select id="queryUser" resultType="com.lensen.backend.dal.domain.manager.ManagerPO">
+        <include refid="Base_Column_List"/>
+        <where>
+            <if test="username != null">
+                and username = #{username}
+            </if>
+            <if test="password != null">
+                and password = #{password}
+            </if>
+            limit 1
+        </where>
+    </select>
+
+    <select id="queryCode" parameterType="com.lensen.backend.dal.domain.manager.ManagerPO" resultType="java.lang.String">
+        select `code`
+        from t_manager_code
+        where token = #{token}
+          and (10 * 60 > unix_timestamp(now()) - unix_timestamp(create_time))
+    </select>
+    <select id="queryPassword" resultType="string">
+        select password
+        from t_manager
+        where id = #{id}
+    </select>
+
+    <insert id="saveCode" parameterType="com.lensen.backend.dal.domain.manager.ManagerPO">
+        insert into t_manager_code (`code`, token, create_time) values (#{code}, #{token}, now())
+    </insert>
+
+    <delete id="deleteCode" parameterType="java.lang.String">
+        delete from t_manager_code where token = #{token}
+    </delete>
+
+
+    <select id="selectManagerList" parameterType="com.lensen.backend.dal.domain.manager.ManagerDto"
+            resultMap="BaseResultMap">
+        select id,name,username,description,status
+        from t_manager
+
+        <where>
+            and del_flag=0
+            <if test="username != null">
+                and username = #{username}
+            </if>
+            <if test="loginTime != null">
+                and login_time = #{loginTime}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by id asc
+    </select>
+    <select id="queryPasswordById" resultType="java.lang.String">
+        select password
+        from t_manager
+        where id=#{id}
+    </select>
+
+
+    <insert id="insertManager" parameterType="com.lensen.backend.dal.domain.manager.ManagerDto" keyProperty="id"
+            useGeneratedKeys="true">
+        insert into t_manager (name, username, password, status, create_id, create_time, description)
+            value (#{name},#{username}, #{password}, #{status}, #{createId}, sysdate(),#{description})
+    </insert>
+
+
+    <update id="updateManagerStatus" parameterType="com.lensen.backend.dal.domain.manager.ManagerDto">
+        update t_manager
+        <set>
+        <if test="status != null">
+            status = #{status},
+        </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <update id="updateManager" parameterType="com.lensen.backend.dal.domain.manager.ManagerDto">
+        update t_manager
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            create_time = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteManager" parameterType="long">
+        delete from t_manager where id=#{id} and del_flag=0
+    </delete>
+
+
+</mapper>

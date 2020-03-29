@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lensen.backend.dal.dao.blow.BlowImgDao">
+    <resultMap id="BaseResultMap" type="com.lensen.backend.dal.domain.blow.BlowImgPO">
+        <id column="id" property="id"/>
+        <result column="blow_id" property="blowId"/>
+        <result column="img_url" property="imgUrl"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        select id, blow_id, img_url
+        from t_blow_img
+    </sql>
+    <insert id="insertBatchBlowImg" parameterType="com.lensen.backend.dal.domain.blow.BlowImgDto">
+        insert into t_blow_img (blow_id, img_url)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.blowId}, #{item.imgUrl})
+        </foreach>
+    </insert>
+    <select id="selectBlowImg" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        where blow_id = #{id}
+    </select>
+</mapper>

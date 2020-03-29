@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lensen.backend.dal.dao.blow.BlowDao">
+    <resultMap id="BaseResultMap" type="com.lensen.backend.dal.domain.blow.BlowPO">
+        <id column="id" property="id"/>
+        <result column="license_plate_number" property="licensePlateNumber"/>
+        <result column="car_type" property="carType"/>
+        <result column="illegal_type" property="illegalType"/>
+        <result column="travel_direction" property="travelDirection"/>
+        <result column="region" property="region"/>
+        <result column="address" property="address"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="BlowResultMap" type="com.lensen.backend.dal.domain.blow.BlowPO" extends="BaseResultMap">
+        <collection property="imgPOs" ofType="com.lensen.backend.dal.domain.blow.BlowImgPO" column="id" select="selectBlowImg">
+            <id column="img_id" property="id"/>
+            <result column="img_url" property="imgUrl"/>
+        </collection>
+        <collection property="videoPOs" ofType="com.lensen.backend.dal.domain.blow.BlowVideoPO" column="id" select="selectBlowVideo">
+            <id column="video_id" property="id"/>
+            <result column="video_url" property="videoUrl"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="ImgResultMap" type="com.lensen.backend.dal.domain.blow.BlowImgPO">
+        <id column="img_id" property="id"/>
+        <result column="img_url" property="imgUrl"/>
+    </resultMap>
+
+    <resultMap id="VideoResultMap" type="com.lensen.backend.dal.domain.blow.BlowVideoPO">
+        <id column="video_id" property="id"/>
+        <result column="video_url" property="videoUrl"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        select id,
+               license_plate_number,
+               car_type,
+               illegal_type,
+               travel_direction,
+               region,
+               address,
+               `status`,
+               create_time
+        from t_blow_record
+    </sql>
+
+    <sql id="selectList">
+        <if test="licensePlateNumber != null and licensePlateNumber != ''">
+            and license_plate_number = #{licensePlateNumber}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and create_time between #{startTime} and #{endTime}
+        </if>
+        <if test="region != null and region != ''">
+            and region = #{region}
+        </if>
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+    </sql>
+
+
+
+
+    <sql id="selectList1">
+        <if test="licensePlateNumber != null and licensePlateNumber != ''">
+            and license_plate_number = #{licensePlateNumber}
+        </if>
+        <if test="startTime != null">
+            and create_time  &lt;= #{startTime}
+        </if>
+        <if test="region != null and region != ''">
+            and region = #{region}
+        </if>
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+    </sql>
+
+    <select id="selectBlowList1" parameterType="com.lensen.backend.dal.domain.blow.BlowDto" resultMap="BaseResultMap">
+        select id, license_plate_number, car_type, illegal_type, travel_direction, region, address, `status`,
+        create_time
+        from t_blow_record
+        <where>
+            <include refid="selectList1"/>
+        </where>
+        order by create_time desc
+    </select>
+
+
+
+
+    <select id="selectBlowList" parameterType="com.lensen.backend.dal.domain.blow.BlowDto" resultMap="BaseResultMap">
+        select id, license_plate_number, car_type, illegal_type, travel_direction, region, address, `status`,
+        create_time
+        from t_blow_record
+        <where>
+            <include refid="selectList"/>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectBlowImg" parameterType="java.lang.Long" resultMap="ImgResultMap">
+        select img_url from t_blow_img where blow_id = #{id}
+    </select>
+
+    <select id="selectBlowVideo" parameterType="java.lang.Long" resultMap="VideoResultMap">
+        select video_url from t_blow_video where blow_id = #{id}
+    </select>
+
+    <!-- PageHelper分页插件自定义count查询语句-->
+    <select id="selectBlowList_COUNT" parameterType="com.lensen.backend.dal.domain.blow.BlowDto" resultType="java.lang.Long">
+        select count(1)
+        from t_blow_record
+        <where>
+            <include refid="selectList"/>
+        </where>
+    </select>
+
+
+    <update id="updateBlow" parameterType="com.lensen.backend.dal.domain.blow.BlowDto">
+        update t_blow_record
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="licensePlateNumber != null">
+                license_plate_number = #{licensePlateNumber},
+            </if>
+            <if test="modId != null">
+                mod_id = #{modId},
+            </if>
+            mod_time = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+    <insert id="insertBlow" parameterType="com.lensen.backend.dal.domain.blow.BlowDto" useGeneratedKeys="true" keyProperty="id">
+        insert into t_blow_record (id,license_plate_number, car_type, illegal_type, travel_direction, region, address,
+                                   `status`, create_time)
+            value (#{id},#{licensePlateNumber}, #{carType}, #{illegalType}, #{travelDirection}, #{region}, #{address},
+                   #{status}, #{createTime})
+    </insert>
+
+    <update id="updateLicensePlateNumber" parameterType="com.lensen.backend.dal.domain.blow.BlowDto">
+        update t_blow_record
+        <set>
+            <if test="licensePlateNumber != null">
+                license_plate_number = #{licensePlateNumber},
+            </if>
+            <if test="modId != null">
+                mod_id = #{modId},
+            </if>
+            mod_time = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <select id="findDayCount" resultType="integer">
+        SELECT COUNT(id) AS todayCount
+        FROM t_blow_record
+        WHERE create_time LIKE  CONCAT('%',#{time},'%')
+    </select>
+
+
+    <select id="findMonthCount" resultType="integer">
+        SELECT COUNT(id)
+        FROM t_blow_record
+        WHERE create_time LIKE  CONCAT(#{time},'%')
+    </select>
+
+
+    <select id="findValidCount" resultType="integer">
+
+        SELECT COUNT(id) AS validCount
+        FROM t_blow_record
+        WHERE status = 1
+    </select>
+
+    <select id="findAllRecords" resultType="integer">
+        SELECT COUNT(id)
+        FROM t_blow_record
+    </select>
+
+
+    <select id="findWeekCount" resultType="integer">
+        SELECT COUNT(id)
+        FROM t_blow_record
+        WHERE DATE_SUB(CURDATE(), INTERVAL 6 DAY) &lt;= DATE(create_time)
+
+    </select>
+
+    <select id="findAllCount"  resultType="com.lensen.backend.dal.domain.blow.WeekDay">
+        SELECT DISTINCT DATE(create_time) AS eachday,COUNT(id) AS DATA
+        FROM t_blow_record
+        WHERE create_time BETWEEN DATE_SUB(NOW(), INTERVAL 6 DAY) AND NOW()
+        GROUP BY DATE(create_time)
+    </select>
+
+
+    <select id="findWeekCounts" resultType="com.lensen.backend.dal.domain.blow.WeekDay">
+         SELECT DISTINCT DATE_FORMAT(create_time,'%W') AS eachday,COUNT(id) AS DATA
+            FROM t_blow_record
+            WHERE create_time BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW()
+            GROUP BY DATE(create_time)
+    </select>
+
+    <delete id="deleteRecords" parameterType="long">
+        delete from t_blow_record where id=#{id}
+    </delete>
+    <!--批量修改状态-->
+    <update id="updateByPrimaryKey" parameterType="com.lensen.backend.dal.domain.blow.BlowDto">
+        update t_blow_record
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="licensePlateNumber != null">
+                license_plate_number = #{licensePlateNumber},
+            </if>
+            <if test="modId != null">
+                mod_id = #{modId},
+            </if>
+            mod_time = sysdate()
+        </set>
+        where id
+        in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--批量删除-->
+    <delete id="deleteByPrimaryKey" parameterType="java.util.List">
+        delete from t_blow_record
+        where id
+        in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectAccordingHours" resultType="int" parameterType="com.lensen.backend.dal.domain.blow.TimeParam">
+        select count(count) from (select count(id) as count
+                from t_blow_record
+               where DATE_FORMAT(create_time,'%Y-%m-%d %H') between CONCAT(DATE_FORMAT(now(),'%Y-%m-%d'),' ',#{startTime}) and CONCAT(DATE_FORMAT(now(),'%Y-%m-%d'),' ',#{endTime})
+                group by id) a
+    </select>
+
+    <select id="findOne" resultType="int">
+        select count(id)
+        from t_blow_record
+        where DATE_FORMAT(create_time,'%Y-%m-%d') between CONCAT(DATE_FORMAT(now(),'%Y-%m'),'-01') and CONCAT(DATE_FORMAT(now(),'%Y-%m'),'-07')
+    </select>
+    <select id="findTwo" resultType="int">
+        select count(id)
+        from t_blow_record
+        where DATE_FORMAT(create_time,'%Y-%m-%d') between CONCAT(DATE_FORMAT(now(),'%Y-%m'),'-08') and CONCAT(DATE_FORMAT(now(),'%Y-%m'),'-15')
+    </select>
+    <select id="findThree" resultType="int">
+        select count(id)
+        from t_blow_record
+        where DATE_FORMAT(create_time,'%Y-%m-%d') between CONCAT(DATE_FORMAT(now(),'%Y-%m'),'-16') and CONCAT(DATE_FORMAT(now(),'%Y-%m'),'-21')
+    </select>
+    <select id="findFour" resultType="int">
+        select count(id)
+        from t_blow_record
+        where DATE_FORMAT(create_time,'%Y-%m-%d') >= CONCAT(DATE_FORMAT(now(),'%Y-%m'),'-22')
+    </select>
+</mapper>

@@ -1,0 +1,31 @@
+package com.lensen.backend.dal.dao.monitor;
+
+import com.github.pagehelper.Page;
+import com.lensen.backend.dal.domain.monitor.MonitorDto;
+import com.lensen.backend.dal.domain.monitor.MonitorPO;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface MonitorDao {
+    Page<MonitorPO> selectMonitorAndTime();
+
+    Page<MonitorPO> selectMonitorList(MonitorDto dto);
+
+    int insertMonitor(MonitorDto dto);
+
+    int updateMonitor(MonitorDto dto);
+
+    MonitorPO selectMonitorById(Long id);
+
+    int deleteMonitor(Long id);
+
+    List<String> selectAllDeviceId();
+
+    int selectAllMonitors();
+
+    int selectNormalMonitors();
+
+    int selectANormalMonitors();
+}

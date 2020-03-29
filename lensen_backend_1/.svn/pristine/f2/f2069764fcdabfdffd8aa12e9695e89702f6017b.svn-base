@@ -1,0 +1,138 @@
+package com.lensen.mobile.web;
+
+import com.lensen.backend.dal.domain.blow.BlowDto;
+import com.lensen.backend.dal.domain.blow.BlowImgDto;
+import com.lensen.backend.utils.BaseResponse;
+import com.lensen.backend.utils.CommonUtil;
+import com.lensen.backend.utils.Status;
+import com.lensen.mobile.service.blow.BlowAO;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+@RestController
+@RequestMapping("/blow")
+public class BlowController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlowController.class);
+
+    @Autowired
+    private BlowAO blowAO;
+
+    /**
+     * 插入图片
+     */
+    @PostMapping(value = "/insert_images", produces = "application/json;charset=UTF-8")
+    public void insertImages(@RequestBody List<BlowImgDto> blowImgDto) {
+        long start = System.currentTimeMillis();
+        blowAO.insertImages(blowImgDto);
+        LOGGER.info("blow/list cost: {}ms", System.currentTimeMillis() - start);
+    }
+
+    @PostMapping(value = "/blow", produces = "application/json;charset=UTF-8")
+    public String addBlow(@RequestBody BlowDto dto) {
+        long start = System.currentTimeMillis();
+        BaseResponse<Object> result = new BaseResponse<>();
+        if (StringUtils.isBlank(dto.getLicensePlateNumber()) || StringUtils.isBlank(dto.getRegion())
+                || StringUtils.isBlank(dto.getAddress()) || StringUtils.isBlank(dto.getCarType())
+                || StringUtils.isBlank(dto.getIllegalType()) || StringUtils.isBlank(dto.getTravelDirection())) {
+            result.setCode(Status.NULL_PARAM.getCode());
+            result.setMsg(Status.NULL_PARAM.getMessage());
+            return CommonUtil.responseFromObject(result);
+        }
+        result = blowAO.insertBlow(dto);
+        LOGGER.info("blow/blow cost: {}ms", System.currentTimeMillis() - start);
+        return CommonUtil.responseFromObject(result);
+    }
+
+    /**
+     * 获取鸣笛记录列表
+     */
+    @PostMapping(value = "/list", produces = "application/json;charset=UTF-8")
+    public String list(@RequestBody(required = false) BlowDto dto) {
+        long start = System.currentTimeMillis();
+        BaseResponse<Object> result = blowAO.selectBlowList(dto);
+        LOGGER.info("blow/list cost: {}ms", System.currentTimeMillis() - start);
+        return CommonUtil.responseFromObject(result);
+    }
+
+    /**
+     * 修改车牌
+     */
+    @PostMapping(value = "/modLicensePlateNumber", produces = "application/json;charset=UTF-8")
+    public String modLicensePlateNumber(@RequestBody BlowDto dto) {
+        long start = System.currentTimeMillis();
+        BaseResponse<Object> result = blowAO.updateLicensePlateNumber(dto);
+        LOGGER.info("blow/modLicensePlateNumber cost: {}ms", System.currentTimeMillis() - start);
+        return CommonUtil.responseFromObject(result);
+    }
+
+    /**
+     * 修改鸣笛记录状态
+     */
+    @PostMapping(value = "/modBlow", produces = "application/json;charset=UTF-8")
+    public String modBlow(@RequestBody BlowDto dto) {
+        long start = System.currentTimeMillis();
+        BaseResponse<Object> result = blowAO.updateBlow(dto);
+        LOGGER.info("blow/modBlow cost: {}ms", System.currentTimeMillis() - start);
+        return CommonUtil.responseFromObject(result);
+    }
+
+    /**
+     * 批量修改鸣笛记录状态
+     */
+    @PostMapping(value = "/batchModBlow", produces = "application/json;charset=UTF-8")
+    public String batchModBlow(@RequestBody BlowDto dto) {
+        long start = System.currentTimeMillis();
+        BaseResponse<Object> result = blowAO.batchUpdateBlow(dto);
+        LOGGER.info("blow/modBlow cost: {}ms", System.currentTimeMillis() - start);
+        return CommonUtil.responseFromObject(result);
+    }
+
+    /**
+     * 获取鸣笛图片
+     */
+    @PostMapping(value = "/getBlowImg", produces = "application/json;charset=UTF-8")
+    public String getBlowImg(@RequestBody BlowDto dto) {
+        long start = System.currentTimeMillis();
+        BaseResponse<Object> result = blowAO.selectBlowImg(dto.getId());
+        LOGGER.info("blow/getBlowImg cost: {}ms", System.currentTimeMillis() - start);
+        return CommonUtil.responseFromObject(result);
+    }
+
+    /**
+     * 获取鸣笛视频
+     */
+    @PostMapping(value = "/getBlowVideo", produces = "application/json;charset=UTF-8")
+    public String getBlowVideo(@RequestBody BlowDto dto) {
+        long start = System.currentTimeMillis();
+        BaseResponse<Object> result = blowAO.selectBlowVideo(dto.getId());
+        LOGGER.info("blow/getBlowVideo cost: {}ms", System.currentTimeMillis() - start);
+        return CommonUtil.responseFromObject(result);
+    }
+
+    /**
+     * 删除鸣笛记录
+     */
+    @PostMapping("/delete_records")
+    public String deleteRecords(@RequestBody BlowDto dto) {
+        long start = System.currentTimeMillis();
+        Long id = dto.getId();
+        BaseResponse<Object> result = blowAO.deleteRecords(id);
+        LOGGER.info("manager/delManager cost: {}ms", System.currentTimeMillis() - start);
+        return CommonUtil.responseFromObject(result);
+    }
+
+    /**
+     * 批量删除鸣笛记录
+     */
+    @PostMapping("/batchDeletes")
+    @ResponseBody
+    public BaseResponse<Object> batchDeletes(@RequestBody BlowDto dto) {
+        long start = System.currentTimeMillis();
+        BaseResponse<Object> result = blowAO.batchDeletes(dto);
+        LOGGER.info("manager/delManager cost: {}ms", System.currentTimeMillis() - start);
+        return result;
+    }
+}

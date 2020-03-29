@@ -1,0 +1,40 @@
+server.servlet.context-path=/backend-web
+server.port=8082
+# datasource config, druid
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.druid.url=jdbc:mysql://47.98.44.225:3306/mingdi_1?characterEncoding=utf-8&useUnicode=true&autoReconnect=true&failOverReadOnly=false&allowMultiQueries=true
+spring.datasource.druid.username=root
+spring.datasource.druid.password=$lingshi001
+spring.datasource.druid.db-type=com.alibaba.druid.pool.DruidDataSource
+
+# 连接池配置
+spring.datasource.druid.initial-size=5
+spring.datasource.druid.max-active=50
+spring.datasource.druid.min-idle=5
+# 连接等待超时时间
+spring.datasource.druid.max-wait=60000
+# 可以关闭的空闲连接间隔时间
+spring.datasource.druid.time-between-eviction-runs-millis=60000
+# 配置连接在池中的最小生存时间
+spring.datasource.druid.min-evictable-idle-time-millis=300000
+spring.datasource.druid.remove-abandoned=true
+spring.datasource.druid.remove-abandoned-timeout=1800
+# 连接验证查询sql
+spring.datasource.druid.validation-query=SELECT 1
+spring.datasource.druid.test-while-idle=true
+spring.datasource.druid.test-on-borrow=false
+spring.datasource.druid.test-on-return=false
+# Spring监控AOP切入点
+spring.datasource.druid.aop-patterns=com.lensen.backend.service.*
+# mybatis
+mybatis.configuration.cache-enabled=false
+mybatis.configuration.map-underscore-to-camel-case=true
+mybatis.mapper-locations=classpath*:mybatis/sqlmap/*.xml
+# devtools
+# 热部署生效
+spring.devtools.restart.enabled=true
+# 用于freemarker获取contextPath
+spring.freemarker.request-context-attribute=request
+# pageHelper分页插件
+# 分页合理化
+pagehelper.reasonable=true

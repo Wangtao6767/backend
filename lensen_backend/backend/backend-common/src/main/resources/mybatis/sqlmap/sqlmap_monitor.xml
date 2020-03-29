@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lensen.backend.dal.dao.monitor.MonitorDao">
+    <resultMap id="BaseResultMap" type="com.lensen.backend.dal.domain.monitor.MonitorPO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="region" property="region"/>
+        <result column="address" property="address"/>
+        <result column="device_id" property="deviceId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <collection property="timePOs" ofType="com.lensen.backend.dal.domain.monitor.MonitorTimePO">
+            <result column="start_time" property="startTime"/>
+            <result column="end_time" property="endTime"/>
+        </collection>
+    </resultMap>
+
+    <!--一对多分页-->
+    <resultMap id="monitor" type="com.lensen.backend.dal.domain.monitor.MonitorPO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="region" property="region"/>
+        <result column="address" property="address"/>
+        <result column="device_id" property="deviceId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <collection property="timePOs" ofType="com.lensen.backend.dal.domain.monitor.MonitorTimePO"
+                    javaType="java.util.List" select="getTimeByMonitorID"
+                    column="{id=id}">
+            <result column="id" property="id"/>
+            <result column="monitor_id" property="monitorId"/>
+<!--            <result column="start_time" property="startTime"/>-->
+<!--            <result column="end_time" property="endTime"/>-->
+            <result column="time_slot" property="timeSlot" />
+        </collection>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        select id, `name`, region, address, device_id, `status`, create_time
+        from t_monitoring_point
+    </sql>
+    <delete id="deleteMonitor">
+        delete
+        from t_monitoring_point
+        where id=#{id}
+    </delete>
+    <!--    <select id="selectMonitorList" parameterType="com.lensen.backend.dal.domain.monitor.MonitorDto" resultMap="BaseResultMap">-->
+    <select id="selectMonitorList" resultMap="BaseResultMap">
+        select a.id,
+               `name`,
+               region,
+               address,
+               device_id,
+               `status`,
+               create_time,
+               b.start_time,
+               b.end_time
+        from t_monitoring_point a
+                 left join t_monitoring_time b on a.id = b.monitor_id
+        order by a.id, b.start_time
+    </select>
+    <!-- PageHelper分页插件自定义count查询语句-->
+    <select id="selectMonitorList_COUNT" parameterType="com.lensen.backend.dal.domain.monitor.MonitorDto" resultType="java.lang.Long">
+        select count(1)
+        from t_monitoring_point
+    </select>
+    <insert id="insertMonitor" parameterType="com.lensen.backend.dal.domain.monitor.MonitorDto" keyProperty="id" useGeneratedKeys="true">
+        insert into t_monitoring_point (`name`, region, address, device_id, `status`, create_id, create_time)
+            value (#{name}, #{region}, #{address}, #{deviceId}, #{status}, #{createId}, sysdate())
+    </insert>
+    <update id="updateMonitor" parameterType="com.lensen.backend.dal.domain.monitor.MonitorDto">
+        update t_monitoring_point
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="region != null">
+                region = #{region},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="address != null">
+                address = #{address},
+            </if>
+            <if test="deviceId != null">
+                device_id = #{deviceId},
+            </if>
+            <if test="modId != null">
+                mod_id = #{modId},
+            </if>
+            mod_time = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+    <select id="selectMonitorById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select a.id,
+        `name`,
+        region,
+        address,
+        device_id,
+        `status`,
+        create_time,
+        b.start_time,
+        b.end_time
+        from t_monitoring_point a
+        inner join t_monitoring_time b on a.id = b.monitor_id
+        where a.id = #{id}
+        <!--<include refid="Base_Column_List"/>
+        where id = #{id}-->
+    </select>
+
+    <select id="selectMonitorAndTime" resultMap="monitor">
+        select a.id,
+               a.name,
+               a.region,
+               a.address,
+               a.device_id,
+               a.status,
+               a.create_time
+        from t_monitoring_point a
+        order by a.id
+    </select>
+    <select id="getTimeByMonitorID" resultType="map">
+        select
+            b.id,
+            b.monitor_id,
+            time_slot
+        from t_monitoring_time b
+        where b.monitor_id=#{id}
+        order by b.start_time
+    </select>
+    <select id="selectAllDeviceId" resultType="string">
+        select device_id
+        from t_monitoring_point
+    </select>
+</mapper>

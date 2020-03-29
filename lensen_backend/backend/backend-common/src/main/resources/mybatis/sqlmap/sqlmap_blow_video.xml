@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lensen.backend.dal.dao.blow.BlowVideoDao">
+    <resultMap id="BaseResultMap" type="com.lensen.backend.dal.domain.blow.BlowVideoPO">
+        <id column="id" property="id"/>
+        <result column="blow_id" property="blowId"/>
+        <result column="video_url" property="videoUrl"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        select id, blow_id, video_url
+        from t_blow_video
+    </sql>
+    <insert id="insertBlowVideo" parameterType="com.lensen.backend.dal.domain.blow.BlowVideoDto">
+        insert into t_blow_video (blow_id, video_url) values (#{blowId}, #{videoUrl})
+    </insert>
+    <select id="selectBlowVideo" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        where blow_id = #{id}
+    </select>
+</mapper>

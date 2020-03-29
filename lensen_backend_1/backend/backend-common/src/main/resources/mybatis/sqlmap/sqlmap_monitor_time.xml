@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lensen.backend.dal.dao.monitor.MonitorTimeDao">
+    <resultMap id="BaseResultMap" type="com.lensen.backend.dal.domain.monitor.MonitorTimePO">
+        <id column="id" property="id"/>
+        <result column="monitor_id" property="monitorId"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        select id, monitor_id, start_time, end_time
+        from t_monitoring_time
+    </sql>
+    <!--<insert id="insertBatchMonitorTime" parameterType="com.lensen.backend.dal.domain.monitor.MonitorTimeDto">
+        insert into t_monitoring_time (monitor_id, start_time, end_time)
+        values
+        <foreach collection="list" item="item" index="i" separator=",">
+            (#{item.monitorId,jdbcType=BIGINT}, #{item.startTime,jdbcType=TIME}, #{item.endTime,jdbcType=TIME})
+        </foreach>
+    </insert>-->
+<!--  把开始时间和结束时间合并为一个  -->
+    <insert id="insertBatchMonitorTime" parameterType="com.lensen.backend.dal.domain.monitor.MonitorTimeDto">
+        insert into t_monitoring_time (monitor_id, time_slot)
+        values
+        <foreach collection="list" item="item" index="i" separator=",">
+            (#{item.monitorId,jdbcType=BIGINT}, #{item.timeSlot,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+    <delete id="deleteByMonitorId" parameterType="java.lang.Long">
+        delete
+        from t_monitoring_time
+        where monitor_id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lensen.backend.dal.dao.auth.PageDao">
+    <resultMap id="BaseResultMap" type="com.lensen.backend.dal.domain.auth.PagePO">
+        <id column="id" property="id"/>
+        <result column="designation" property="designation"/>
+        <result column="url" property="url"/>
+        <result column="img_url" property="imgUrl"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="sort" property="sort"/>
+        <result column="page_type" property="pageType"/>
+        <result column="bundle_name" property="bundleName"/>
+        <result column="create_time" property="createTime"/>
+        <result column="del_flag" property="delFlag"/>
+    </resultMap>
+    <resultMap type="com.lensen.backend.dal.domain.auth.PagePO" id="pageResult">
+        <id column="tp_id" property="id"/>
+        <result column="tp_url" property="url"/>
+        <result column="tp_page_type" property="pageType"/>
+        <result column="tp_parent_id" property="parentId"/>
+        <result column="tp_img_url" property="imgUrl"/>
+        <result column="tp_designation" property="designation"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        select id,
+               designation,
+               url,
+               img_url,
+               parent_id,
+               sort,
+               page_type,
+               characterization,
+               bundle_name,
+               create_time,
+               del_flag
+        from t_page
+    </sql>
+    <select id="queryManagerPageDetail" parameterType="com.lensen.backend.dal.domain.auth.AuthorityPageDto"
+            resultMap="pageResult">
+        select tp.id          as tp_id,
+               tp.url         as tp_url,
+               tp.page_type   as tp_page_type,
+               tp.parent_id   as tp_parent_id,
+               tp.img_url     as tp_img_url,
+               tp.designation as tp_designation
+        from t_page tp
+        where 1 = 1
+          and tp.id in (${pageId})
+          and del_flag = 0
+        order by tp.sort asc
+    </select>
+</mapper>
